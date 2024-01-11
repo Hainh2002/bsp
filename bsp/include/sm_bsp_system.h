@@ -35,7 +35,7 @@ void sm_bsp_system_reset();
  * @param
  * @return
  */
-void sm_bsp_delay_us(uint32_t us);
+void sm_bsp_delay_us(uint32_t timeus);
 /**
  * @fn sm_bsp_delay_ms()
  * @brief
@@ -43,6 +43,6 @@ void sm_bsp_delay_us(uint32_t us);
  * @param
  * @return
  */
-void sm_bsp_delay_ms(uint32_t ms);
+void sm_bsp_delay_ms(uint32_t timems);
 
 #endif /* BSP_INCLUDE_SM_BSP_SYSTEM_H_ */

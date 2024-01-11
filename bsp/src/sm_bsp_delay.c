@@ -1,22 +1,10 @@
 #include "sm_bsp_system.h"
 
-/**
- * @fn void sm_bsp_delay_ms(uint32_t)
- * @brief
- *
- * @param timems
- */
-void sm_bsp_delay_ms(uint32_t timems){
 
-}
-/**
- * @fn void sm_bsp_delay_us(uint32_t)
- * @brief
- *
- * @param timeus
- */
-void sm_bsp_delay_us(uint32_t timeus){
-
+void sm_bsp_delay_ms(uint32_t _timems){
+    sm_hal_delay_ms(_timems);
 }
 
-#endif
+void sm_bsp_delay_us(uint32_t _timeus){
+    sm_hal_delay_us(_timeus);
+}

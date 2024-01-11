@@ -11,15 +11,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "hal_data.h"
+
+#include "sm_hal_can.h"
+#include "sm_hal_uart.h"
+#include "sm_hal_timer.h"
+
+#include "sm_porting.h"
 /* ADC */
-/**
- * @fn sm_bsp_adc_init()
- * @brief
- *
- * @param
- * @return
- */
-void sm_bsp_adc_init();
 /**
  * @fn sm_bsp_adc_read_charger_voltage()
  * @brief
@@ -38,6 +37,7 @@ uint16_t sm_bsp_adc_read_charger_voltage();
 uint16_t sm_bsp_adc_read_abp_voltage();
 
 /* CAN */
+typedef func_can_rx_callback sm_bsp_can_rx_irq_fn_t;
 /**
  * @fn sm_bsp_can_init()
  * @brief
@@ -45,17 +45,17 @@ uint16_t sm_bsp_adc_read_abp_voltage();
  * @param
  * @return
  */
-void sm_bsp_can_init();
+int32_t sm_bsp_can_init();
 /**
- * @fn sm_bsp_can_send(uint32_t id, uint8_t *tx_buffer, uint8_t len)
+ * @fn sm_bsp_can_send(uint32_t _id, uint8_t *_tx_buffer, uint8_t _len)
  * @brief
  *
- * @param id
- * @param tx_buffer
- * @param len
+ * @param _id
+ * @param _tx_buffer
+ * @param _len
  * @return 0 success | -1 error
  */
-int32_t sm_bsp_can_send(uint32_t id, uint8_t *tx_buffer, uint8_t len);
+int32_t sm_bsp_can_send(uint32_t _id, uint8_t *_tx_buffer, uint8_t _len);
 /**
  * @fn sm_bsp_can_set_receive_handle(sm_hal_can_t *_can,void (*_handler)(sm_hal_can_t *_can))
  * @brief
@@ -64,9 +64,10 @@ int32_t sm_bsp_can_send(uint32_t id, uint8_t *tx_buffer, uint8_t len);
  * @param _handler
  * @return
  */
-void sm_bsp_can_set_receive_handle(sm_hal_can_t *_can,void (*_handler)(sm_hal_can_t *_can));
+void sm_bsp_can_set_receive_handle(sm_bsp_can_rx_irq_fn_t _can_receive_handle);
 
 /* UART */
+typedef sm_hal_uart_rx_irq sm_bsp_uart_rx_irq_fn_t;
 /**
  * @fn sm_bsp_uart_init(uint32_t _baudrate, uint32_t _databit, uint32_t _parity)
  * @brief
@@ -76,54 +77,73 @@ void sm_bsp_can_set_receive_handle(sm_hal_can_t *_can,void (*_handler)(sm_hal_ca
  * @param _parity
  * @return
  */
-void sm_bsp_uart_init(uint32_t _baudrate, uint32_t _databit, uint32_t _parity);
+int32_t sm_bsp_uart_init(uint32_t _baudrate, uint32_t _databit, uint32_t _parity);
 /**
- * @fn sm_bsp_uart_send(uint8_t *tx_buffer, uint8_t len)
+ * @fn sm_bsp_uart_send(uint8_t *_tx_buffer, uint8_t _len)
  * @brief
  *
  * @param tx_buffer
  * @param len
  * @return 0 success | -1 error
  */
-int32_t sm_bsp_uart_send(uint8_t *tx_buffer, uint8_t len);
+int32_t sm_bsp_uart_send(uint8_t *_tx_buffer, uint8_t _len);
 /**
- * @fn sm_bsp_uart_set_receive_handle(sm_hal_uart_t *_uart, void (*_handler)(sm_hal_uart_t *_uart))
+ * @fn void sm_bsp_uart_set_receive_handle(sm_bsp_uart_rx_irq _uart_receive_handle)
  * @brief
  *
  * @param _uart
  * @param _handler
  * @return
  */
-void sm_bsp_uart_set_receive_handle(sm_hal_uart_t *_uart, void (*_handler)(sm_hal_uart_t *_uart));
+void sm_bsp_uart_set_receive_handle(sm_bsp_uart_rx_irq_fn_t _uart_receive_handle);
+
 
 /* TIMER */
+typedef timerfuntion_t sm_bsp_timer_irq_fn_t;
 /**
- * @fn sm_bsp_timer_init()
+ * @fn sm_bsp_timer_1ms_init()
  * @brief
  *
  * @param
  * @return
  */
-void sm_bsp_timer_init();
+void sm_bsp_timer_1ms_init();
 /**
- * @fn sm_bsp_timer_set_irq_handle(sm_hal_timer_t  *_timer, void (*_handler)(void))
+ * @fn sm_bsp_timer_10ms_init()
+ * @brief
+ *
+ * @param
+ * @return
+ */
+void sm_bsp_timer_10ms_init();
+/**
+ * @fn sm_bsp_timer_1ms_set_irq_handle(void (*_handler)(void))
  * @brief
  *
  * @param _timer
  * @param _handler
  * @return
  */
-void sm_bsp_timer_set_irq_handle(sm_hal_timer_t  *_timer, void (*_handler)(void));
+void sm_bsp_timer_1ms_set_irq_handle(sm_bsp_timer_irq_fn_t _1ms_irq_handle);
+/**
+ * @fn sm_bsp_timer_10ms_set_irq_handle(void (*_handler)(void))
+ * @brief
+ *
+ * @param _timer
+ * @param _handler
+ * @return
+ */
+void sm_bsp_timer_10ms_set_irq_handle(sm_bsp_timer_irq_fn_t _10ms_irq_handle);
 
 /* IWDG */
 /**
- * @fn sm_bsp_iwdg_open(sm_hal_iwdg_t *_iwdg)
+ * @fn sm_bsp_iwdg_open()
  * @brief
  *
  * @param _iwdg
  * @return
  */
-void sm_bsp_iwdg_open(sm_hal_iwdg_t *_iwdg);
+int32_t sm_bsp_iwdg_start();
 /**
  * @fn sm_bsp_iwdg_close()
  * @brief
@@ -131,7 +151,7 @@ void sm_bsp_iwdg_open(sm_hal_iwdg_t *_iwdg);
  * @param _iwdg
  * @return
  */
-void sm_bsp_iwdg_close(sm_hal_iwdg_t *_iwdg);
+int32_t sm_bsp_iwdg_close();
 /**
  * @fn sm_bsp_iwdg_reset()
  * @brief
@@ -139,7 +159,7 @@ void sm_bsp_iwdg_close(sm_hal_iwdg_t *_iwdg);
  * @param _iwdg
  * @return
  */
-void sm_bsp_iwdg_reset(sm_hal_iwdg_t *_iwdg);
+int32_t sm_bsp_iwdg_reset();
 
 /* PWM */
 
